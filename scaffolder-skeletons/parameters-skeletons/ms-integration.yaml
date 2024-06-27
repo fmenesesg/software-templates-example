@@ -47,31 +47,21 @@ properties:
         - test
 dependencies:
   producto:
-    title: Seleccionar un Mesa
-    type: string
     oneOf:
       - properties:
           producto:
-            title: Seleccionar un Mesa
-            type: string
             enum:
               - example
           mesa:
-            title: Mesa de desarrollo
-            type: string
             enum:
               - example
             enumNames:
               - example
       - properties:
           producto:
-            title: Seleccionar un Mesa
-            type: string
             enum:
               - mimo
           mesa:
-            title: Mesa de desarrollo
-            type: string
             enum:
               - apk
               - cuenta1
