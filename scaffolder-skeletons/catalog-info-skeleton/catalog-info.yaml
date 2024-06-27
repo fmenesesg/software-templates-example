@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.componentName }}
+  title: ${{ values.componentTitle }}
+  {%- if values.description %}
+  description: ${{ values.description }}
+  {%- endif %}
+  annotations:
+    {%- if values.argoCDProjectApp %}
+    argocd/app-name: ${{ values.argoCDProjectApp }}
+    {%- endif %}
+    {%- if values.k8sNamespace %}
+    backstage.io/kubernetes-namespace: ${{values.k8sNamespace}}
+    {%- endif %}
+    {%- if values.k8sLabelSelector %}
+    backstage.io/kubernetes-label-selector: ${{values.k8sLabelSelector}}
+    {%- endif %}
+    {%- if values.gitlabProjectID %}
+    gitlab.com/project-id: "${{ values.gitlabProjectID }}"
+    gitlab.com/instance: github.com.example.com
+    {%- endif %}
+    {%- if values.imageRepository == "harbor" %}
+    goharbor.io/repository-slug: ${{ values.imageUrl }}
+    {%- endif %}
+spec:
+  type: ${{ values.applicationType }}
+  lifecycle: production
+  owner: ${{values.owner | dump}}

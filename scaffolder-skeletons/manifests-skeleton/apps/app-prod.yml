@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ${{values.component_id}}-prod
+  namespace: ${{values.k8sNamespace}}
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: rp
+            url: https://api.ocp4-pp.cloudteco.com.ar:6443
+          - cluster: re
+            url: https://api.ocp4-re.cloudteco.com.ar:6443
+  template:
+    metadata:
+      name: '${{values.component_id}}-{{cluster}}-prod'
+    spec: 
+      project: ${{values.component_id}}
+      source:
+        repoURL: https://${{ values.component_url }}
+        path: manifests/overlays/prod
+        targetRevision: HEAD
+      destination:
+        server: '{{url}}'
+        namespace: ${{values.k8sNamespace}}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas

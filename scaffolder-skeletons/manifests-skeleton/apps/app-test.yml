@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ${{values.component_id}}-test
+  namespace: ${{values.k8sNamespace}}
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: rp
+            url: https://api.ocp4-rp.cloudteco.com.ar:6443
+          - cluster: re
+            url: https://api.ocp4-re.cloudteco.com.ar:6443
+  template:
+    metadata:
+      name: '${{ values.component_id }}-{{cluster}}-test'
+    spec: 
+      project: ${{values.component_id}}
+      source:
+        repoURL: https://${{ values.component_url }}
+        path: manifests/overlays/test
+        targetRevision: HEAD
+        kustomize:
+          commonAnnotations:  
+            app/ingress-host: '${{ values.component_id }}-${{values.k8sNamespace}}.apps.ocp4-{{cluster}}.cloudteco.com.ar' 
+      destination:
+        server: '{{url}}'
+        namespace: ${{values.k8sNamespace}}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas

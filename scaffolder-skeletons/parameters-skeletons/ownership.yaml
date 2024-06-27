@@ -1,0 +1,22 @@
+title: Informacion del componente 
+required:
+  - component_id
+  - owner
+properties:
+  component_id:
+    title: Nombre
+    type: string
+    description: Nombre unico para el componente
+    ui:field: EntityNamePicker
+  description:
+    title: Descripcion
+    type: string
+    description: Ayuda a otros a comprender para qué sirve este componente.
+  owner:
+    title: Dueño
+    type: string
+    description: Dueño del componente
+    ui:field: OwnerPicker
+    ui:options:
+      allowedKinds:
+        - Group

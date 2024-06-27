@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+      app: ${{values.component_id}}-mu
+    name: ${{values.component_id}}-mu
+spec:
+  selector: 
+    matchLabels:
+      app: ${{values.component_id}}-mu
+  template:
+    metadata:
+      labels:
+        app: ${{values.component_id}}-mu
+    spec:
+      restartPolicy: Always
+      containers:
+        - resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 400Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 90
+            timeoutSeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          terminationMessagePath: /dev/termination-log
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 180
+            timeoutSeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          name: ${{values.component_id}}-mu
+          # env:
+          #   - name: QE_K8S_CONFIG_SECRET
+          #     value: quay-registry-quay-config-secret-985h996cmb
+          #   - name: QE_K8S_NAMESPACE
+          #     valueFrom:
+          #       fieldRef:
+          #         apiVersion: v1
+          #         fieldPath: metadata.namespace
+
+          #   - name: TZ
+          #     value: America/Argentina/Buenos_Aires
+          #   - name: ENVIRONMENT
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: ENVIRONMENT
+          #   - name: DB_WEBDB_DATASOURCE_URL
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: DB_WEBDB_DATASOURCE_URL
+          #   - name: SECURITY_ISSUERS_ALLOWED_DOMAINS
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: SECURITY_ISSUERS_ALLOWED_DOMAINS
+          #   - name: REDIS_ENABLED
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REDIS_ENABLED
+          #   - name: REDIS_PORT
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REDIS_PORT
+          #   - name: REDIS_HOST
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REDIS_HOST
+          #   - name: REDIS_SENTINEL_ENABLED
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REDIS_SENTINEL_ENABLED
+          #   - name: REDIS_SENTINEL_NODES
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REDIS_SENTINEL_NODES
+          #   - name: REDIS_SENTINEL_MASTER
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REDIS_SENTINEL_MASTER
+          #   - name: DB_WEBDB_USERNAME
+          #     valueFrom:
+          #       secretKeyRef:
+          #         key: webdb-username
+          #         name: db-web-credentials
+          #   - name: DB_WEBDB_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         key: webdb-password
+          #         name: db-web-credentials
+          #   - name: SCHEMA_WEBDB
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: SCHEMA_WEBDB
+          #   - name: GC_MAX_METASPACE_SIZE
+          #     value: '1024'
+          #   - name: GC_METASPACE_SIZE
+          #     value: '256'
+          #   - name: JAVA_OPTIONS
+          #     value: >-
+          #       -Dcom.sun.management.jmxremote
+          #       -Dcom.sun.management.jmxremote=true
+          #       -Dcom.sun.management.jmxremote.port=3000
+          #       -Dcom.sun.management.jmxremote.rmi.port=3001
+          #       -Djava.rmi.server.hostname=127.0.0.1
+          #       -Dcom.sun.management.jmxremote.authenticate=false
+          #       -Dcom.sun.management.jmxremote.ssl=false
+          #       -XX:+UnlockExperimentalVMOptions
+          #       -XX:+UseCGroupMemoryLimitForHeap
+          #       -XX:MinHeapFreeRatio=15
+          #       -XX:MaxHeapFreeRatio=30
+          #       -Dhttp.nonProxyHosts='*.acme.com.ar|*.svc.cluster.local'
+          #   - name: SYSLOG_LOG_LEVEL_CONSOLE
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: SYSLOG_LOG_LEVEL_CONSOLE
+          #   - name: SYSLOG_LOG_LEVEL_REMOTE
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: SYSLOG_LOG_LEVEL_REMOTE
+          #   - name: SYSLOG_LOG_PROFILE
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: SYSLOG_LOG_PROFILE
+          #   - name: REMOTE_LOG_HOST
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REMOTE_LOG_HOST
+          #   - name: REMOTE_LOG_PORT
+          #     valueFrom:
+          #       configMapKeyRef:
+          #         name: ${{values.component_id}}-mu-config
+          #         key: REMOTE_LOG_PORT
+          # ports:
+          #   - containerPort: 8080
+          #     protocol: TCP
+          # imagePullPolicy: Always
+          # image: registry.example/image-example:tag
+  replicas: 1
+  strategy:
+    type: RollingUpdate

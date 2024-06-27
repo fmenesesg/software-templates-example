@@ -1,0 +1,28 @@
+# Base image
+FROM node:18.7-alpine AS builder
+
+# Create app directory
+WORKDIR /build
+
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+COPY package*.json ./
+
+# Install app dependencies
+RUN npm install
+
+# Bundle app source
+COPY . .
+
+# Creates a "dist" folder with the production build
+RUN npm run build 
+
+FROM node:18.7-alpine
+
+WORKDIR /app
+
+COPY --from=builder --chown=1000 /build /app
+
+USER node:node
+
+# Start the server using the production build
+CMD [ "node", "dist/main.js" ]

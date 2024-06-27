@@ -1,0 +1,123 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: nest-template
+  title: NestJS Template
+  description: Create a starter NestJS application managed by ArgoCD with a CI pipeline
+  tags:
+    - nestjs
+spec:
+  owner: ACME
+  type: service
+  parameters:
+  # Template con los parametros para elegir al dueño del componente
+  - $yaml: ../../scaffolder-skeletons/parameters-skeleton/ownership.yaml
+
+  # Template con los parametros para elegir la ubicacion del repositorio a crear
+  - $yaml: ../../scaffolder-skeletons/parameters-skeleton/location.yaml
+
+  # Template con los parametros que describen la aplicacion o servicio a crear
+  - $yaml: ../../scaffolder-skeletons/parameters-skeleton/application.yaml
+
+  steps:
+    - id: debug
+      action: debug:log
+      message: ${{ process.env.TEST }}
+
+    - id: template
+      name: Generating component
+      action: fetch:template
+      input:
+        url: ./skeleton/app
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          organization: ${{ parameters.organization }}
+          destination: ${{ parameters.repoOwner}}
+          http_port: 8080
+
+    - id: catalogTemplate
+      name: Generando el componente Catalog Info
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/catalog-info-skeleton/
+        values:
+          applicationType: ${{ parameters.applicationType }}
+          componentTitle: ${{ parameters.componentTitle }}
+          componentName: ${{ parameters.componentName }}
+          owner: ${{ parameters.owner }}
+          gitlabRepo: ${{ parameters.gitlabRepo }}
+          description: ${{ parameters.description }}
+          imageUrl: ${{ parameters.imageUrl }}
+          argoCDProjectApp: ${{ parameters.argoCDProjectApp }}
+          jiraProjectKey: ${{ parameters.jiraProjectKey }}
+          dynatraceEntityID: ${{ parameters.dynatraceEntityID }}
+          imageRepository: ${{ parameters.imageRepository }}
+          k8sNamespace: ${{ parameters.k8sNamespace }}
+          k8sLabelSelector: ${{ parameters.k8sLabelSelector }}
+
+    - id: Ensure repo exist
+      name: Ensure repo exist
+      action: gitlab:group:ensureExists
+      input:
+        repoUrl: gitlab.com?owner=${{ parameters.repoOwner }}/${{ parameters.componentType }}/${{ parameters.k8sNamespace }}
+        path: ['${{ parameters.repoName }}']
+
+    - id: publish
+      name: Publishing to Source Code Repository
+      action: publish:gitlab
+      input:
+        allowedHosts:
+          - gitlab.com
+        description: This is ${{ parameters.component_id }}
+        repoUrl: gitlab.com?owner=${{ parameters.repoOwner }}/${{ parameters.componentType }}/${{ parameters.k8sNamespace }}&repo=${{ parameters.repoName }}
+        defaultBranch: master
+
+    - id: create-branches
+      name: Creating branches within Source Code Repository
+      action: create-branches
+      input:
+        repoUrl: gitlab.com?owner=${{ parameters.repoOwner }}/${{ parameters.componentType }}/${{ parameters.k8sNamespace }}&repo=${{ parameters.repoName }}
+        branches: ["develop", "testing", "uat"]
+
+    - id: register
+      name: Registering to the Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+    - id: template-manifests
+      if: ${{ parameters.gitops }}
+      name: Generating Manifest
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/manifests-skeleton/
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          k8sNamespace: ${{ parameters.k8sNamespace }}
+          repoOwner: ${{ parameters.repoOwner }}
+          repoName: ${{ parameters.repoName }}
+          component_url: gitlab.com/${{ parameters.repoOwner }}/${{ parameters.componentType }}/k8s-manifests/${{ parameters.k8sNamespace }}/${{ parameters.repoName }}.git
+          owner: ${{ parameters.owner }}
+        targetPath: ./manifests
+
+    - id: publish-manifests
+      if: ${{ parameters.gitops }}
+      name: Publishing the Manifests to Source Code Repository
+      action: publish:gitlab
+      input:
+        allowedHosts: ["gitlab.com"]
+        description: This is ${{ parameters.component_id }}
+        repoUrl: gitlab.com?owner=${{ parameters.repoOwner }}/${{ parameters.componentType }}/k8s-manifests/${{ parameters.k8sNamespace }}&repo=${{ parameters.repoName }}
+        sourcePath: ./manifests
+ 
+  output:
+    links:
+      - title: Source Code Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open Component in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

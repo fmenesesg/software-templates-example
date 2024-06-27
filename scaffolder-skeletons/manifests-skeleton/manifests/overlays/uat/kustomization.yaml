@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../base
+patches:
+- path: configmaps.yaml
+replacements:
+- path: replacement-host.yaml
+images:
+- name: registry.example/image-example
+  newName: quay-registry-quay-quay-registry.apps.ocp4-mh.cloudteco.com.ar/${{values.k8sNamespace}}/${{values.component_id}}
+  newTag: 1.6.0-rc

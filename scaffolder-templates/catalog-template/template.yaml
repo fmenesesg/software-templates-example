@@ -1,0 +1,63 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: catalog-template
+  title: Agregar Catalog Info a un proyecto exitente 5
+  description: Permite crear un PR con el descriptor necesario para que un proyecto sea registrado en el catalogo
+  tags:
+    - recommended
+    - catalog
+spec:
+  owner: devhub-admin
+  system: developerhub
+  type: service
+  parameters:
+  # Template con los parametros para elegir la ubicacion del repositorio a crear
+  - $yaml: ../../scaffolder-skeletons/parameters-skeletons/location.yaml
+
+  # Template con los parametros que describen la aplicacion o servicio a crear
+  - $yaml: ../../scaffolder-skeletons/parameters-skeletons/application.yaml
+
+  steps:
+  # Se verifica existencia del repositorio
+    #- id: verifyGitlabPath
+    #  name: Verificando gitlab path
+    #  action: gitlab:group:ensureExists
+    #  input:
+    #    repoUrl: github.com.example.com/
+    #    path: [ "example?repo=${{ parameters.repoName }}&owner=example" ]
+    # Se genera el archivo catalog-info.yaml
+    - id: catalogTemplate
+      name: Generando el componente Catalog Info
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/catalog-info-skeleton/
+        values:
+          applicationType: ${{ parameters.applicationType }}
+          componentTitle: ${{ parameters.componentTitle }}
+          componentName: ${{ parameters.componentName }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.descripcion }}
+          imageUrl: ${{ parameters.imageUrl }}
+          gitlabProjectID: ${{ parameters.projectid }}
+          argoCDProjectApp: ${{ parameters.argoCDProjectApp }}
+          imageRepository: ${{ parameters.imageRepository }}
+          k8sNamespace: ${{ parameters.k8sNamespace }}
+          k8sLabelSelector: ${{ parameters.k8sLabelSelector }}
+    
+    # Se crea una branch con el nombre feature/add-to-developerhub para luego generar el MR con el descriptor
+    - id: publish
+      name: Creando MR para agregar el Catalog Info al repositorio de codigo fuente
+      action: publish:gitlab:merge-request
+      input:
+        allowedHosts: ["github.com.example.com"]
+        description: Se agrega el archivo catalog-info.yaml para poder ser agregado en Developer Hub
+        repoUrl: github.com.example.com/example?repo=${{ parameters.repoName }}&owner=${{ parameters.repoOwner }}
+        branchName: feature/add-to-developerhub
+        title: "Developer Hub: Agregar catalog info al repo"
+        sourcePath: ./
+        removeSourceBranch: true
+  output:
+    links:
+      - title: Open the Source Code Repository
+        url: ${{ steps.publish.output.mergeRequestUrl }}

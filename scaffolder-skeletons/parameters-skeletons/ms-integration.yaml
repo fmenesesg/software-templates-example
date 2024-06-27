@@ -1,0 +1,80 @@
+title: Proporcionar información sobre la implementación del nuevo microservicio de Integracion.
+required: 
+  - rp_var_author
+  - rp_var_agile_team
+  - rp_var_backend
+  - rp_var_microservice_name
+  - rp_var_project_description
+  - rp_var_route
+  - dy_var_product
+properties:
+  rp_var_author:
+      title: Ingresar el mail del autor del proyecto
+      type: string
+      description: "Mail del autor del proyecto"
+  rp_var_agile_team:
+    title: Nombre del AGILE TEAM
+    type: string
+    description: "Nombre del AGILE TEAM "
+  rp_var_backend:
+    title: Identificador del BACKEND
+    type: string
+    description: "Nombre del BACKEND"
+  rp_var_microservice_name:
+    type: string
+    title: Ingrese el nombre del microservicio
+    description: "Debe ingresar el nombre del microservicio"
+  rp_var_project_description:
+    type: string
+    title: Ingrese la descripcion del microservicio
+    description: "Ej : Microservicio que ....."
+  rp_var_route:
+    title: Ruta del microservicio
+    type: string
+    description: "Ingrese la ruta que expone el microservicio"
+#  dy_var_product:
+ #   title: Producto
+  #  type: string
+   # description: "Ingrese el PRODUCTO al que pretenece el microservicio Ej: example"
+  producto:
+      title: Seleccionar un Producto
+      type: string
+      enum:
+        - example
+        - mimo
+      enumNames:
+        - example
+        - test
+dependencies:
+  producto:
+    title: Seleccionar un Mesa
+    type: string
+    oneOf:
+      - properties:
+          producto:
+            title: Seleccionar un Mesa
+            type: string
+            enum:
+              - example
+          mesa:
+            title: Mesa de desarrollo
+            type: string
+            enum:
+              - example
+            enumNames:
+              - example
+      - properties:
+          producto:
+            title: Seleccionar un Mesa
+            type: string
+            enum:
+              - mimo
+          mesa:
+            title: Mesa de desarrollo
+            type: string
+            enum:
+              - apk
+              - cuenta1
+            enumNames:
+              - Mesa apk
+              - Mesa Cuenta1

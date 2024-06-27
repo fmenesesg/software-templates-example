@@ -1,0 +1,161 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: nodejs-template 
+  title: nodejs Template 1
+  description: Crear un nuevo microservicio de integracion.
+  tags:
+    - nodejs
+spec:
+  owner: paasTeam
+  type: service
+  parameters:
+  # Template con los parametros a completados por el desarrollador
+  - $yaml: ../../scaffolder-skeletons/parameters-skeletons/ms-integration.yaml
+
+  steps:
+    - id: template
+      name: Generating component
+      action: fetch:plain
+      input:
+        url: https://github.com.example.com/example/templates/template-integration
+        targetPath: ./
+
+    - id: catalogTemplateDev
+      name: Generando el componente Catalog Info
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/catalog-info-skeleton/
+        values:
+          applicationType: service
+          componentTitle: ${{ parameters.rp_var_microservice_name }}
+          componentName: ${{ parameters.rp_var_microservice_name }}
+          owner: ${{ parameters.rp_var_agile_team }}
+          gitlabRepo: ${{ parameters.gitlabRepo }}
+          description: ${{ parameters.rp_var_project_description }}
+          imageUrl: example/${{ parameters.rp_var_microservice_name }}
+          argoCDProjectApp: ${{ parameters.rp_var_microservice_name }}
+          #jiraProjectKey: ${{ parameters.jiraProjectKey }}
+          #dynatraceEntityID: ${{ parameters.dynatraceEntityID }}
+          imageRepository: harbor
+          k8sNamespace: ${{ parameters.k8sNamespace }}
+          #k8sLabelSelector: ${{ parameters.k8sLabelSelector }}
+
+    - id: catalogTemplateInt
+      name: Generando el componente Catalog Info
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/catalog-info-skeleton/
+        values:
+          applicationType: service
+          componentTitle: ${{ parameters.rp_var_microservice_name }}
+          componentName: ${{ parameters.rp_var_microservice_name }}
+          owner: ${{ parameters.rp_var_agile_team }}
+          gitlabRepo: ${{ parameters.gitlabRepo }}
+          description: ${{ parameters.rp_var_project_description }}
+          imageUrl: example/${{ parameters.rp_var_microservice_name }}
+          argoCDProjectApp: ${{ parameters.rp_var_microservice_name }}
+          #jiraProjectKey: ${{ parameters.jiraProjectKey }}
+          #dynatraceEntityID: ${{ parameters.dynatraceEntityID }}
+          imageRepository: harbor
+          #k8sNamespace: ${{ parameters.k8sNamespace }}
+          #k8sLabelSelector: ${{ parameters.k8sLabelSelector }}
+
+    - id: catalogTemplateCert
+      name: Generando el componente Catalog Info
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/catalog-info-skeleton/
+        values:
+          applicationType: service
+          componentTitle: ${{ parameters.rp_var_microservice_name }}
+          componentName: ${{ parameters.rp_var_microservice_name }}
+          owner: ${{ parameters.rp_var_agile_team }}
+          gitlabRepo: ${{ parameters.gitlabRepo }}
+          description: ${{ parameters.rp_var_project_description }}
+          imageUrl: example/${{ parameters.rp_var_microservice_name }}
+          argoCDProjectApp: ${{ parameters.rp_var_microservice_name }}
+          #jiraProjectKey: ${{ parameters.jiraProjectKey }}
+          #dynatraceEntityID: ${{ parameters.dynatraceEntityID }}
+          imageRepository: harbor
+          #k8sNamespace: ${{ parameters.k8sNamespace }}
+          #k8sLabelSelector: ${{ parameters.k8sLabelSelector }}
+
+    - id: catalogTemplateProd
+      name: Generando el componente Catalog Info
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/catalog-info-skeleton/
+        values:
+          applicationType: service
+          componentTitle: ${{ parameters.rp_var_microservice_name }}
+          componentName: ${{ parameters.rp_var_microservice_name }}
+          owner: ${{ parameters.rp_var_agile_team }}
+          gitlabRepo: ${{ parameters.gitlabRepo }}
+          description: ${{ parameters.rp_var_project_description }}
+          imageUrl: example/${{ parameters.rp_var_microservice_name }}
+          argoCDProjectApp: ${{ parameters.rp_var_microservice_name }}
+          #jiraProjectKey: ${{ parameters.jiraProjectKey }}
+          #dynatraceEntityID: ${{ parameters.dynatraceEntityID }}
+          imageRepository: harbor
+          #k8sNamespace: ${{ parameters.k8sNamespace }}
+          #k8sLabelSelector: ${{ parameters.k8sLabelSelector }}
+
+
+    - id: publish
+      name: Publicar repo del nuevo microservicio en gitlab
+      action: publish:gitlab
+      input:
+        allowedHosts:
+          - github.com.example.com
+        description: Publicar repositorio ${{ parameters.rp_var_microservice_name }}
+        repoUrl: github.com.example.com?repo=${{ parameters.rp_var_microservice_name }}&owner=example
+        defaultBranch: master
+
+    - id: register
+      name: Registro del microservicio en el catalogo del IDP
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+    - id: template
+      name: Generating component
+      action: fetch:plain
+      input:
+        url: https://github.com.example.com/example/gitops-repo/git-helm-chart-master.git
+        targetPath: ./
+
+    - id: template-manifests
+      if: ${{ parameters.gitops }}
+      name: Generating Manifest
+      action: fetch:template
+      input:
+        url: ../../scaffolder-skeletons/manifests-skeleton/
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          k8sNamespace: ${{ parameters.k8sNamespace }}
+          repoOwner: ${{ parameters.repoOwner }}
+          repoName: ${{ parameters.repoName }}
+          component_url: gitlab.com/${{ parameters.repoOwner }}/${{ parameters.componentType }}/k8s-manifests/${{ parameters.k8sNamespace }}/${{ parameters.repoName }}.git
+          owner: ${{ parameters.owner }}
+        targetPath: ./manifests
+
+    - id: publish-manifests
+      if: ${{ parameters.gitops }}
+      name: Publishing the Manifests to Source Code Repository
+      action: publish:gitlab
+      input:
+        allowedHosts: ["gitlab.com"]
+        description: This is ${{ parameters.component_id }}
+        repoUrl: gitlab.com?owner=${{ parameters.repoOwner }}/${{ parameters.componentType }}/k8s-manifests/${{ parameters.k8sNamespace }}&repo=${{ parameters.repoName }}
+        sourcePath: ./manifests
+ 
+  output:
+    links:
+      - title: Source Code Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open Component in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

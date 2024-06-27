@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${{values.component_id}}
+  annotations:
+    route.openshift.io/termination: edge
+spec:
+  rules:
+    - host: reemplazar
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${{values.component_id}}
+                port:
+                  number: 8080
+ 

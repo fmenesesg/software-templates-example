@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: software-templates
+  description: Una coleccion de software templates para Developer Hub
+spec:
+  type: url
+  targets:
+    - https://github.com.example.com/example/test/software-templates/-/blob/master/scaffolder-templates/catalog-template/template.yaml

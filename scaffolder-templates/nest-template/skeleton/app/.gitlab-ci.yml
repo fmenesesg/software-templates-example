@@ -1,0 +1,5 @@
+include: 
+  - project: '${{ values.destination }}/devops/cicd/templates'
+    ref: master
+    file:
+      - 'ci-pipeline.yml'

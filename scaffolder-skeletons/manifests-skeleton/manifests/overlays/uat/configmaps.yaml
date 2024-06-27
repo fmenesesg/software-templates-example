@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prefa-mu-config
+data:
+  ENVIRONMENT: "UAT"
+  API_ALLOWED_HOSTS: "127.0.0.1;::1;*"
+  DB_WEBDB_DATASOURCE_URL: "jdbc:oracle:thin:@webdbuat2-vip.mctp.corp:1521/WEBUAT"
+  SCHEMA_WEBDB: "A000995"
+  SECURITY_ISSUERS_ALLOWED_DOMAINS: "prefasesionu.acme.com.ar"
+  JAVA_OPTIONS: '-Xms400m -Xmx1024m -Dhttp.nonProxyHosts="*.acme.com.ar|*.svc.cluster.local"'
+  REDIS_ENABLED: "false"
+  REDIS_PORT: "6379"
+  REDIS_HOST: "dldxpredis01.pac.corp.cloudteco.com.ar"
+  REDIS_SENTINEL_ENABLED: "false"
+  REDIS_SENTINEL_NODES: ""
+  REDIS_SENTINEL_MASTER: ""
+  REMOTE_LOG_HOST: "graylog-service"
+  REMOTE_LOG_PORT: "8080"
+  SYSLOG_LOG_LEVEL_CONSOLE: ERROR
+  SYSLOG_LOG_LEVEL_REMOTE: ERROR
+  SYSLOG_LOG_PROFILE: openshift
+  #colocar aqui resto de información necesaria para el configmap

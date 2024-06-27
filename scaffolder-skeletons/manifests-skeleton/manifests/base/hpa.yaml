@@ -1,0 +1,12 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${{values.component_id}}-hpa-cpu
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: ${{values.component_id}}
+    apiVersion: apps/v1
+  minReplicas: 1
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 80

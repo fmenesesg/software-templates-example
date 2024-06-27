@@ -1,0 +1,68 @@
+title: Proporcionar información sobre la implementación de la aplicación.
+required: 
+  - applicationType
+  - componentTitle
+  - componentName
+  - owner
+  - k8sNamespace
+  - imageUrl
+properties:
+  applicationType:
+      title: Seleccionar el tipo de componente a registrar
+      type: string
+      default: service
+      enum:
+        - service
+        - website
+  componentTitle:
+    title: Nombre del componente
+    type: string
+    description: "Nombre del componente a registrar en Developer Hub - Example: API Address Management"
+  componentName:
+    title: Identificador del componente
+    type: string
+    description: "Nombre del componente a registrar en Developer Hub - Example: api-address-management"
+    ui:field: EntityNamePicker
+    ui:autofocus: true
+  projectid:
+    type: string
+    tittle: Ingrese el ProjetID
+    description: "Debe ingresar el ProjectId de Gitlab al cual se le agregara el archivo catalog-info.yaml"
+  owner:
+    type: string
+    ui:field: OwnerPicker
+  descripcion:
+    title: Descripcion del componente
+    type: string
+    description: "Descripcion del componente a registrar en Developer Hub - Example: Este componentes hace ....."
+  k8sNamespace:
+    title: Kubernetes namespace
+    type: string
+    description: "El namespace k8s donde se encuentra desplegada la aplicacion"
+  k8sLabelSelector:
+    title: Kubernetes label selector
+    type: string
+    description: "El label selector para obtener los recursos k8s en el namespace - Example app.kubernetes.io/app=appliaction-name"
+  argoCDProjectApp:
+    title: Argo CD application name
+    type: string
+    description: Argo CD application name
+  imageRepository:
+    title: Seleccionar un registry
+    type: string
+    default: harbor
+    enum:
+      - harbor
+    enumNames:
+      - Harbor
+dependencies:
+  imageRepository:
+    oneOf:
+      - properties:
+          imageRepository:
+            enum:
+              - harbor
+          imageUrl:
+            title: Image Repository
+            type: string
+            description: "Harbor Image URL <Project>/<Repository> Example: project/repository "

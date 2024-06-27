@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+  app: ${{values.component_id}}
+  business_group: ${{values.component_id}}
+resources:
+- deployment.yaml
+- ingress.yaml 
+- service.yaml
+- configmaps.yaml
+- hpa.yaml

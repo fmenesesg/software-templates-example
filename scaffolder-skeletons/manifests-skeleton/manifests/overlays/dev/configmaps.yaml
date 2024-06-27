@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${{values.component_id}}-config
+data:
+  ENVIRONMENT: DEV
+  MU_HOST_GEO: http://192.168.218.230:9090
+  MU_HOST_TECH: http://192.168.218.230
+  #colocar aqui resto de información necesaria para el configmap

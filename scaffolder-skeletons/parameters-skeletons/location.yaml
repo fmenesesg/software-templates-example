@@ -1,0 +1,24 @@
+title: Elige la ubicacion para crear el repositorio
+required:
+  - repoOwner
+  - repoName
+properties:
+  repoOwner:
+    title: Dueño o grupo Gitlab
+    type: string
+    #pattern: '^/|/(?=[^/]*$)'
+    ui:autofocus: true
+    ui:help: 'Hint: debe ir sin / al principio y final'
+    description: Dueño o grupo donde se creara el repositorio. ej (example/test)
+  repoName:
+    title: Nombre del repositorio
+    type: string
+    description: Nombre unico del repositorio
+  componentType:
+    title: Seleccionar el tipo de aplicacion
+    type: string
+    default: backend
+    enum:
+      - backend
+      - frontend
+      - devops

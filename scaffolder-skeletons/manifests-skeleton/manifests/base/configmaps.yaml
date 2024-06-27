@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${{values.component_id}}-config
+data:
+  ENVIRONMENT: DEV
+

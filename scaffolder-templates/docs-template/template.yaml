@@ -1,0 +1,87 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: docs-template
+  title: Template para documentar
+  description: Sirve para crear un nuevo proyecto de documentación
+  tags:
+    - recommended
+    - techdocs
+    - mkdocs
+spec:
+  owner: ACME
+  type: documentation
+
+  parameters:
+  - title: Completar los campos para la nueva documentación
+    required:
+      - name
+      - description
+    properties:
+      name:
+        title: Nombre
+        type: string
+        description: Nombre único para el componente
+        ui:field: EntityNamePicker
+        ui:autofocus: true
+      description:
+        title: Descripción
+        type: string
+        description: Una breve descripción del componente
+      owner:
+        title: Dueño
+        type: string
+        description: Dueño del componente
+        ui:field: OwnerPicker
+        ui:options:
+          allowedKinds:
+            - Group
+  - title: Elegir espacio
+    required:
+      - repoUrl
+    properties:
+      repoUrl:
+        title: Ubicación del repositorio
+        type: string
+        ui:field: RepoUrlPicker
+        ui:options:
+          allowedHosts:
+            - gitlab.com
+
+    # This template is meant to be used on top of an existing template.
+  # By adding the following and fetching from an absolute URL you can
+  # add in the docs template
+  steps:
+    - id: fetch
+      name: Template Docs Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          destination: ${{ parameters.repoUrl | parseRepoUrl }}
+          owner: ${{ parameters.owner }}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts: ["github.com"]
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

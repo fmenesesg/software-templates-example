@@ -1,0 +1,10 @@
+source:
+  kind: Ingress
+  name: ${{values.component_id}}
+  fieldPath: metadata.annotations.app/ingress-host
+targets:
+  - select:
+      kind: Ingress
+      name: ${{values.component_id}}
+    fieldPaths:
+      - spec.rules.0.host

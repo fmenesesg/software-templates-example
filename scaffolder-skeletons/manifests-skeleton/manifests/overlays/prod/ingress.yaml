@@ -1,0 +1,3 @@
+- op: replace
+  path: /spec/rules/0/host
+  value: ${{values.component_id}}-${{values.k8sNamespace}}.apps.ocp4-pp.cloudteco.com.ar
